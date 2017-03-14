@@ -135,6 +135,16 @@ def main(num_epochs=100):
 	#complie functions
 	train_fn = theano.function([input_var, target_var], loss, updates=updates)
 	val_fn = theano.function([input_var, target_var], [test_loss, test_acc])
+#helping test
+	err_input_list = T.tensor4()
+	err_target_list = T.ivector()
+	err_indices = T.neq(T.argmax(test_prediction, axis=1), target_var)
+	for index, element in enumerate(err_indices):
+		err_input_list.append(input_var[index])
+		err_target_list.append(target_var[index])
+
+	simple_prediciton = theano.function([input_var, target_var],
+			[err_input_list, err_target_list])
 
 	#Run the training
 	print("Training starts")
@@ -176,6 +186,10 @@ def main(num_epochs=100):
 		test_err += err
 		test_acc += acc
 		test_batches += 1
+		err_inlist, err_oulist = simple_prediction(inputs, targets)
+		for index, num in enumerate(err_oulist):
+			display(err_inlist[index], err_oulist, 'err-of-num-' + num + '-index' + index + '.png')
+
 	print ("Tesing results:")
 	print ("    test loss:\t\t{:.10f}".format(test_err / test_batches))
 	print ("    test accuracy:\t{:.5f} %".format(
