@@ -18,7 +18,6 @@ def display(input_array, filename, title):
 	plot=plt.imshow(input_array, cmap=matplotlib.cm.Greys)
 	plt.title(title)
 	fig.savefig('./saved_pics/' + filename)
-	plt.show()
 
 #Loading data from MNIST
 
@@ -69,7 +68,6 @@ def build_cnn(input_var=None):
 			nonlinearity=lasagne.nonlinearities.rectify,
 			W=lasagne.init.GlorotUniform())
 	network = lasagne.layers.MaxPool2DLayer(network, pool_size=(2,2))
-
 	network = lasagne.layers.Conv2DLayer(
 			network, num_filters=64, filter_size=(3,3),
 			nonlinearity=lasagne.nonlinearities.rectify,
@@ -136,15 +134,7 @@ def main(num_epochs=100):
 	train_fn = theano.function([input_var, target_var], loss, updates=updates)
 	val_fn = theano.function([input_var, target_var], [test_loss, test_acc])
 #helping test
-	err_input_list = T.tensor4()
-	err_target_list = T.ivector()
-	err_indices = T.neq(T.argmax(test_prediction, axis=1), target_var)
-	for index, element in enumerate(err_indices):
-		err_input_list.append(input_var[index])
-		err_target_list.append(target_var[index])
-
-	simple_prediciton = theano.function([input_var, target_var],
-			[err_input_list, err_target_list])
+	simple_prediction = theano.function([input_var], test_prediction)
 
 	#Run the training
 	print("Training starts")
@@ -180,15 +170,30 @@ def main(num_epochs=100):
 	test_err = 0
 	test_acc = 0
 	test_batches = 0
+	turn = 1
+	i = 0
 	for batch in gen_batches(X_test, y_test, 500, shuffle=False):
 		inputs, targets = batch
 		err, acc = val_fn(inputs, targets)
 		test_err += err
 		test_acc += acc
 		test_batches += 1
-		err_inlist, err_oulist = simple_prediction(inputs, targets)
-		for index, num in enumerate(err_oulist):
-			display(err_inlist[index], err_oulist, 'err-of-num-' + num + '-index' + index + '.png')
+		pre_list = simple_prediction(inputs)
+		pre_list = np.argmax(pre_list, axis=1)
+		err_indices = np.not_equal(pre_list, targets)
+		if turn:
+			turn = 0
+			for j in range(save_num):
+				print("Saving the data of batch", j)
+				for index, num in enumerate(err_indices):
+					if num == 1:
+						display(inputs[index][0], 
+						'actual_' + str(targets[index]) + '_' + 
+						'predict_' + str(pre_list[index]) + '_' +
+						'_index' + str(i) + '.png', 
+						str(targets[index]))
+						i += 1
+
 
 	print ("Tesing results:")
 	print ("    test loss:\t\t{:.10f}".format(test_err / test_batches))
@@ -196,9 +201,11 @@ def main(num_epochs=100):
 		test_acc / test_batches * 100))
 
 if __name__ == '__main__':
+	num_epochs = 100
+	save_num = 0
 	if len(sys.argv) > 1:
 		num_epochs = int(sys.argv[1])
-	else:
-		num_epochs = 100
+	if len(sys.argv) > 2:
+		save_num = int(sys.argv[2])
 	main(num_epochs)
 
