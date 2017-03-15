@@ -195,7 +195,7 @@ def main(num_epochs=50, save_num=0):
 					display(inputs[index][0], 
 					'actual_' + str(targets[index]) + '_' + 
 					'predict_' + str(pre_list[index]) + '_' +
-					'_batch' + str(i) + '_index' + str(index) + '.png', 
+					'_batch' + str(i) + '_' + str(index) + '.png', 
 					str(targets[index]), str(pre_list[index]))
 		i += 1
 
