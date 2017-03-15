@@ -121,7 +121,7 @@ def gen_batches(inputs, targets, batchsize, shuffle=False):
 		yield inputs[excerpt], targets[excerpt]
 
 #training
-def main(num_epochs=50, save_num=0):
+def main(num_epochs=50, save_num=0, Temp=20):
 	#load the dataset
 	print("Loading the dataset")
 	X_train, y_train, X_val, y_val, X_test, y_test = load_dataset()
@@ -219,12 +219,12 @@ def main(num_epochs=50, save_num=0):
 if __name__ == '__main__':
 	num_epochs = 50
 	save_num = 0
-	temp = 20
+	Temp = 20
 	if len(sys.argv) > 1:
 		num_epochs = int(sys.argv[1])
 	if len(sys.argv) > 2:
 		save_num = int(sys.argv[2])
 	if len(sys.argv) > 3:
 		temp = int(sys.argv[3])
-	main(num_epochs, save_num)
+	main(num_epochs, save_num, Temp)
 

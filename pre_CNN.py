@@ -65,6 +65,7 @@ def build_cnn(input_var=None, Temp=20):
 			network, num_filters=32, filter_size=(3,3),
 			nonlinearity=lasagne.nonlinearities.rectify,
 			W=lasagne.init.GlorotUniform())
+	'''
 	network = lasagne.layers.Conv2DLayer(
 			network, num_filters=32, filter_size=(3,3),
 			nonlinearity=lasagne.nonlinearities.rectify,
@@ -92,6 +93,7 @@ def build_cnn(input_var=None, Temp=20):
 			nonlinearity=lasagne.nonlinearities.rectify)
 	network = lasagne.layers.DropoutLayer(
 			network, p=0.5)
+	'''
 
 	network_train = lasagne.layers.DenseLayer(
 			network, num_units=10,
@@ -117,7 +119,7 @@ def gen_batches(inputs, targets, batchsize, shuffle=False):
 		yield inputs[excerpt], targets[excerpt]
 
 #training
-def main(num_epochs=50, save_num=0):
+def main(num_epochs=50, save_num=0, Temp=20):
 	#load the dataset
 	print("Loading the dataset")
 	X_train, y_train, X_val, y_val, X_test, y_test = load_dataset()
@@ -126,7 +128,7 @@ def main(num_epochs=50, save_num=0):
 	target_var = T.ivector('target_var')
 #create CNN
 	print("building the model")
-	network_train, network_test = build_cnn(input_var)
+	network_train, network_test = build_cnn(input_var, Temp)
 #cost function 
 	prediction = lasagne.layers.get_output(network_train)
 	loss = lasagne.objectives.categorical_crossentropy(prediction, target_var)
@@ -228,5 +230,5 @@ if __name__ == '__main__':
 		save_num = int(sys.argv[2])
 	if len(sys.argv) > 3:
 		Temp = int(sys.argv[3])
-	main(num_epochs, save_num)
+	main(num_epochs, save_num, Temp)
 
