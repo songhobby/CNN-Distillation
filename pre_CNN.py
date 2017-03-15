@@ -95,7 +95,7 @@ def build_cnn(input_var=None):
 
 	network = lasagne.layers.DenseLayer(
 			network, num_units=10,
-			nonlinearity=lasagne.nonlinearities.softmax)
+			nonlinearity=labda x : lasagne.nonlinearities.softmax(x / 100))
 
 	return network
 
