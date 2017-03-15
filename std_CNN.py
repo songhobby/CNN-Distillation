@@ -13,13 +13,13 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 def display(input_array, filename, title, prediction):
-	if not os.path.isdir('./saved_pics_init'):
-		os.mkdir('./saved_pics_init')
+	if not os.path.isdir('./saved_pics_old'):
+		os.mkdir('./saved_pics_old')
 	fig=plt.figure(1)
 	ax=plt.subplot(111)
 	plot=plt.imshow(input_array, cmap=matplotlib.cm.Greys)
-	plt.title('actual: ' + title + '		predicted: '+prediction)
-	fig.savefig('./saved_pics_init/' + filename)
+	plt.title('actual: ' + title + '    predicted: '+prediction)
+	fig.savefig('./saved_pics_old/' + filename)
 
 #Loading data from MNIST
 
@@ -59,9 +59,8 @@ def load_dataset():
 	return X_train, y_train, X_val, y_val, X_test, y_test
 
 def build_cnn(input_var=None):
-	network = lasagne.layers.InputLayer(shape=(500, 1, 28, 28), input_var=input_var)
+	network = lasagne.layers.InputLayer(shape=(128, 1, 28, 28), input_var=input_var)
 
-	'''
 	network = lasagne.layers.Conv2DLayer(
 			network, num_filters=32, filter_size=(3,3),
 			nonlinearity=lasagne.nonlinearities.rectify,
@@ -81,13 +80,18 @@ def build_cnn(input_var=None):
 			W=lasagne.init.GlorotUniform())
 	network = lasagne.layers.MaxPool2DLayer(network, pool_size=(2,2))
 
+	network = lasagne.layers.DropoutLayer(
+			network, p=0.5)
 	network = lasagne.layers.DenseLayer(
 			network, num_units=200,
 			nonlinearity=lasagne.nonlinearities.rectify)
+	network = lasagne.layers.DropoutLayer(
+			network, p=0.5)
 	network = lasagne.layers.DenseLayer(
 			network, num_units=200,
 			nonlinearity=lasagne.nonlinearities.rectify)
-	'''
+	network = lasagne.layers.DropoutLayer(
+			network, p=0.5)
 
 	network = lasagne.layers.DenseLayer(
 			network, num_units=10,
@@ -109,7 +113,7 @@ def gen_batches(inputs, targets, batchsize, shuffle=False):
 		yield inputs[excerpt], targets[excerpt]
 
 #training
-def main(num_epochs=100):
+def main(num_epochs=50, save_num=0):
 	#load the dataset
 	print("Loading the dataset")
 	X_train, y_train, X_val, y_val, X_test, y_test = load_dataset()
@@ -126,7 +130,7 @@ def main(num_epochs=100):
 #training
 	params = lasagne.layers.get_all_params(network, trainable=True)
 	updates = lasagne.updates.nesterov_momentum(
-			loss, params, learning_rate=0.01, momentum=0.9)
+			loss, params, learning_rate=0.1, momentum=0.5)
 	#test_loss
 	test_prediction = lasagne.layers.get_output(network, deterministic=True)
 	test_loss = lasagne.objectives.categorical_crossentropy(test_prediction, target_var)
@@ -142,12 +146,11 @@ def main(num_epochs=100):
 
 	#Run the training
 	print("Training starts")
-	for epoch in range(num_epochs):
-		#training
+	for epoch in range(num_epochs): #training
 		train_err=0
 		train_batches=0
 		start_time=time.time()
-		for batch in gen_batches(X_train, y_train, 500, shuffle=True):
+		for batch in gen_batches(X_train, y_train, 128, shuffle=True):
 			inputs, targets = batch
 			train_err += train_fn(inputs, targets)
 			train_batches += 1
@@ -155,7 +158,7 @@ def main(num_epochs=100):
 		val_err = 0
 		val_acc = 0
 		val_batches = 0
-		for batch in gen_batches(X_val, y_val, 500, shuffle=False):
+		for batch in gen_batches(X_val, y_val, 128):
 			inputs, targets = batch
 			err, acc = val_fn(inputs, targets)
 			val_err += err
@@ -174,9 +177,8 @@ def main(num_epochs=100):
 	test_err = 0
 	test_acc = 0
 	test_batches = 0
-	turn = 1
 	i = 0
-	for batch in gen_batches(X_test, y_test, 500, shuffle=False):
+	for batch in gen_batches(X_test, y_test, 128):
 		inputs, targets = batch
 		err, acc = val_fn(inputs, targets)
 		test_err += err
@@ -185,34 +187,30 @@ def main(num_epochs=100):
 		pre_list = simple_prediction(inputs)
 		pre_list = np.argmax(pre_list, axis=1)
 		err_indices = np.not_equal(pre_list, targets)
-		if turn:
-			turn = 0
-			for j in range(save_num):
-				print("Saving the pictures of batch", j)
-				for index, num in enumerate(err_indices):
-					if num == 1:
-						display(inputs[index][0], 
-						'actual_' + str(targets[index]) + '_' + 
-						'predict_' + str(pre_list[index]) + '_' +
-						'_index' + str(i) + '.png', 
-						str(targets[index]), str(targets[index]))
-						i += 1
+		i += 1
+		if save_num:
+			print("Saving the wrong pictures of batch", i)
+			save_num -= 1
+			for index, num in enumerate(err_indices):
+				if num == 1:
+					display(inputs[index][0], 
+					'actual_' + str(targets[index]) + '_' + 
+					'predict_' + str(pre_list[index]) + '_' +
+					'_index' + str(i) + '.png', 
+					str(targets[index]), str(pre_list[index]))
 
 
 	print ("Tesing results:")
 	print ("    test loss:\t\t{:.10f}".format(test_err / test_batches))
 	print ("    test accuracy:\t{:.5f} %".format(
 		test_acc / test_batches * 100))
-#save the distilled targets
-	print("saving the distilled targets")
-	np.savez_compressed('distilled_labels', simple_prediction(X_train))
 
 if __name__ == '__main__':
-	num_epochs = 100
+	num_epochs = 50
 	save_num = 0
 	if len(sys.argv) > 1:
 		num_epochs = int(sys.argv[1])
 	if len(sys.argv) > 2:
 		save_num = int(sys.argv[2])
-	main(num_epochs)
+	main(num_epochs, save_num)
 
