@@ -63,14 +63,13 @@ def load_distilled (filename='distilled_labels'):
 	return np.load(filename + '.npz')['arr_0']
 
 
-def build_cnn(input_var=None):
+def build_cnn(input_var=None, Temp=20):
 	network = lasagne.layers.InputLayer(shape=(128, 1, 28, 28), input_var=input_var)
 
 	network = lasagne.layers.Conv2DLayer(
 			network, num_filters=32, filter_size=(3,3),
 			nonlinearity=lasagne.nonlinearities.rectify,
 			W=lasagne.init.GlorotUniform())
-	'''
 	network = lasagne.layers.Conv2DLayer(
 			network, num_filters=32, filter_size=(3,3),
 			nonlinearity=lasagne.nonlinearities.rectify,
@@ -98,11 +97,10 @@ def build_cnn(input_var=None):
 			nonlinearity=lasagne.nonlinearities.rectify)
 	network = lasagne.layers.DropoutLayer(
 			network, p=0.5)
-	'''
 
 	network_train = lasagne.layers.DenseLayer(
 			network, num_units=10,
-			nonlinearity=lambda x : lasagne.nonlinearities.softmax(x / 20))
+			nonlinearity=lambda x : lasagne.nonlinearities.softmax(x/Temp))
 	network_test = lasagne.layers.DenseLayer(
 			network, num_units=10, W=network_train.W, b=network_train.b,
 			nonlinearity=lasagne.nonlinearities.softmax)
@@ -134,7 +132,7 @@ def main(num_epochs=50, save_num=0):
 	target_distilled = T.matrix('target_distilled')
 #create CNN
 	print("building the model")
-	network_train, network_test = build_cnn(input_var)
+	network_train, network_test = build_cnn(input_var, Temp)
 #cost function 
 	prediction = lasagne.layers.get_output(network_train)
 	loss = lasagne.objectives.categorical_crossentropy(prediction, target_distilled)
@@ -221,9 +219,12 @@ def main(num_epochs=50, save_num=0):
 if __name__ == '__main__':
 	num_epochs = 50
 	save_num = 0
+	temp = 20
 	if len(sys.argv) > 1:
 		num_epochs = int(sys.argv[1])
 	if len(sys.argv) > 2:
 		save_num = int(sys.argv[2])
+	if len(sys.argv) > 3:
+		temp = int(sys.argv[3])
 	main(num_epochs, save_num)
 
