@@ -188,7 +188,6 @@ def main(num_epochs=50, save_num=0):
 		pre_list = simple_prediction(inputs)
 		pre_list = np.argmax(pre_list, axis=1)
 		err_indices = np.not_equal(pre_list, targets)
-		i += 1
 		if save_num:
 			print("Saving the wrong pictures of batch", i)
 			save_num -= 1
@@ -197,8 +196,9 @@ def main(num_epochs=50, save_num=0):
 					display(inputs[index][0], 
 					'actual_' + str(targets[index]) + '_' + 
 					'predict_' + str(pre_list[index]) + '_' +
-					'_index' + str(i) + '.png', 
+					'_batch' + str(i) + '_index' + str(index) + '.png', 
 					str(targets[index]), str(pre_list[index]))
+		i += 1
 
 
 	print ("Tesing results:")
