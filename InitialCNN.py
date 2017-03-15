@@ -13,13 +13,13 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 def display(input_array, filename, title, prediction):
-	if not os.path.isdir('./saved_pics'):
-		os.mkdir('./saved_pics')
+	if not os.path.isdir('./saved_pics_init'):
+		os.mkdir('./saved_pics_init')
 	fig=plt.figure(1)
 	ax=plt.subplot(111)
 	plot=plt.imshow(input_array, cmap=matplotlib.cm.Greys)
 	plt.title('actual: ' + title + '		predicted: '+prediction)
-	fig.savefig('./saved_pics/' + filename)
+	fig.savefig('./saved_pics_init/' + filename)
 
 #Loading data from MNIST
 
@@ -58,15 +58,10 @@ def load_dataset():
 
 	return X_train, y_train, X_val, y_val, X_test, y_test
 
-#load distilled targets
-def load_distilled (filename='distilled_labels.npz'):
-	return np.load(filename)['arr_0']
-
-
 def build_cnn(input_var=None):
 	network = lasagne.layers.InputLayer(shape=(500, 1, 28, 28), input_var=input_var)
-	'''
 
+	'''
 	network = lasagne.layers.Conv2DLayer(
 			network, num_filters=32, filter_size=(3,3),
 			nonlinearity=lasagne.nonlinearities.rectify,
@@ -118,17 +113,15 @@ def main(num_epochs=100):
 	#load the dataset
 	print("Loading the dataset")
 	X_train, y_train, X_val, y_val, X_test, y_test = load_dataset()
-	y_distilled = load_distilled()
 #define Theano variables
 	input_var = T.tensor4('input_var')
 	target_var = T.ivector('target_var')
-	target_distilled = T.matrix('target_distilled')
 #create CNN
 	print("building the model")
 	network = build_cnn(input_var)
 #cost function 
 	prediction = lasagne.layers.get_output(network)
-	loss = lasagne.objectives.categorical_crossentropy(prediction, target_distilled)
+	loss = lasagne.objectives.categorical_crossentropy(prediction, target_var)
 	loss = loss.mean()
 #training
 	params = lasagne.layers.get_all_params(network, trainable=True)
@@ -142,7 +135,7 @@ def main(num_epochs=100):
 	test_acc = T.mean(T.eq(T.argmax(test_prediction, axis=1), target_var),
 			dtype=theano.config.floatX)
 	#complie functions
-	train_fn = theano.function([input_var, target_distilled], loss, updates=updates)
+	train_fn = theano.function([input_var, target_var], loss, updates=updates)
 	val_fn = theano.function([input_var, target_var], [test_loss, test_acc])
 #helping test
 	simple_prediction = theano.function([input_var], test_prediction)
@@ -154,7 +147,7 @@ def main(num_epochs=100):
 		train_err=0
 		train_batches=0
 		start_time=time.time()
-		for batch in gen_batches(X_train, y_distilled, 500, shuffle=True):
+		for batch in gen_batches(X_train, y_train, 500, shuffle=True):
 			inputs, targets = batch
 			train_err += train_fn(inputs, targets)
 			train_batches += 1
@@ -195,7 +188,7 @@ def main(num_epochs=100):
 		if turn:
 			turn = 0
 			for j in range(save_num):
-				print("Saving the data of batch", j)
+				print("Saving the pictures of batch", j)
 				for index, num in enumerate(err_indices):
 					if num == 1:
 						display(inputs[index][0], 
@@ -210,6 +203,9 @@ def main(num_epochs=100):
 	print ("    test loss:\t\t{:.10f}".format(test_err / test_batches))
 	print ("    test accuracy:\t{:.5f} %".format(
 		test_acc / test_batches * 100))
+#save the distilled targets
+	print("saving the distilled targets")
+	np.savez_compressed('distilled_labels', simple_prediction(X_train))
 
 if __name__ == '__main__':
 	num_epochs = 100
