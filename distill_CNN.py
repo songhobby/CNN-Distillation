@@ -70,6 +70,7 @@ def build_cnn(input_var=None):
 			network, num_filters=32, filter_size=(3,3),
 			nonlinearity=lasagne.nonlinearities.rectify,
 			W=lasagne.init.GlorotUniform())
+	'''
 	network = lasagne.layers.Conv2DLayer(
 			network, num_filters=32, filter_size=(3,3),
 			nonlinearity=lasagne.nonlinearities.rectify,
@@ -97,12 +98,16 @@ def build_cnn(input_var=None):
 			nonlinearity=lasagne.nonlinearities.rectify)
 	network = lasagne.layers.DropoutLayer(
 			network, p=0.5)
+	'''
 
-	network = lasagne.layers.DenseLayer(
+	network_train = lasagne.layers.DenseLayer(
 			network, num_units=10,
+			nonlinearity=lambda x : lasagne.nonlinearities.softmax(x / 20))
+	network_test = lasagne.layers.DenseLayer(
+			network, num_units=10, W=network_train.W, b=network_train.b,
 			nonlinearity=lasagne.nonlinearities.softmax)
 
-	return network
+	return network_train, network_test
 
 #Batch generator
 def gen_batches(inputs, targets, batchsize, shuffle=False):
@@ -129,17 +134,17 @@ def main(num_epochs=50, save_num=0):
 	target_distilled = T.matrix('target_distilled')
 #create CNN
 	print("building the model")
-	network = build_cnn(input_var)
+	network_train, network_test = build_cnn(input_var)
 #cost function 
-	prediction = lasagne.layers.get_output(network)
+	prediction = lasagne.layers.get_output(network_train)
 	loss = lasagne.objectives.categorical_crossentropy(prediction, target_distilled)
 	loss = loss.mean()
 #training
-	params = lasagne.layers.get_all_params(network, trainable=True)
+	params = lasagne.layers.get_all_params(network_train, trainable=True)
 	updates = lasagne.updates.nesterov_momentum(
 			loss, params, learning_rate=0.1, momentum=0.5)
 	#test_loss
-	test_prediction = lasagne.layers.get_output(network, deterministic=True)
+	test_prediction = lasagne.layers.get_output(network_test, deterministic=True)
 	test_loss = lasagne.objectives.categorical_crossentropy(test_prediction, target_var)
 	test_loss = test_loss.mean()
 #test_loss
@@ -203,7 +208,6 @@ def main(num_epochs=50, save_num=0):
 					display(inputs[index][0], 
 					'actual_' + str(targets[index]) + '_' + 
 					'predict_' + str(pre_list[index]) + '_' +
-					'_index' + str(i) + '.png', 
 					'_batch' + str(i) + '_' + str(index) + '.png', 
 					str(targets[index]), str(pre_list[index]))
 		i += 1
