@@ -12,14 +12,15 @@ import lasagne
 import matplotlib
 import matplotlib.pyplot as plt
 
+
 def display(input_array, filename, title, prediction):
-	if not os.path.isdir('./saved_pics_init'):
-		os.mkdir('./saved_pics_init')
+	if not os.path.isdir('./Pre/WrongTests'):
+		os.mkdir('./Pre/WrongTests')
 	fig=plt.figure(1)
 	ax=plt.subplot(111)
 	plot=plt.imshow(input_array, cmap=matplotlib.cm.Greys)
 	plt.title('actual: ' + title + '    predicted: ' + prediction)
-	fig.savefig('./saved_pics_init/' + filename)
+	fig.savefig('./Pre/WrongTests/' + filename)
 
 #Loading data from MNIST
 
@@ -65,7 +66,6 @@ def build_cnn(input_var=None, Temp=20):
 			network, num_filters=32, filter_size=(3,3),
 			nonlinearity=lasagne.nonlinearities.rectify,
 			W=lasagne.init.GlorotUniform())
-	'''
 	network = lasagne.layers.Conv2DLayer(
 			network, num_filters=32, filter_size=(3,3),
 			nonlinearity=lasagne.nonlinearities.rectify,
@@ -93,7 +93,6 @@ def build_cnn(input_var=None, Temp=20):
 			nonlinearity=lasagne.nonlinearities.rectify)
 	network = lasagne.layers.DropoutLayer(
 			network, p=0.5)
-	'''
 
 	network_train = lasagne.layers.DenseLayer(
 			network, num_units=10,
@@ -218,9 +217,11 @@ def main(num_epochs=50, save_num=0, Temp=20):
 		inputs, targets = batch
 		distilled_labels = np.concatenate((distilled_labels, 
 			simple_prediction(inputs)))
-	np.savez_compressed('distilled_labels', distilled_labels)
+	np.savez_compressed('./Pre/distilled_labels', distilled_labels)
 
 if __name__ == '__main__':
+	if not os.path.isdir('./Pre'):
+		os.mkdir('./Pre')
 	num_epochs = 50
 	save_num = 0
 	Temp = 20

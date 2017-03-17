@@ -13,13 +13,13 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 def display(input_array, filename, title, prediction):
-	if not os.path.isdir('./saved_pics'):
-		os.mkdir('./saved_pics')
+	if not os.path.isdir('./Distill/WrongTests'):
+		os.mkdir('./WrongTests')
 	fig=plt.figure(1)
 	ax=plt.subplot(111)
 	plot=plt.imshow(input_array, cmap=matplotlib.cm.Greys)
 	plt.title('actual: ' + title + '    predicted: '+prediction)
-	fig.savefig('./saved_pics/' + filename)
+	fig.savefig('./WrongTests/' + filename)
 
 #Loading data from MNIST
 
@@ -59,7 +59,7 @@ def load_dataset():
 	return X_train, y_train, X_val, y_val, X_test, y_test
 
 #load distilled targets
-def load_distilled (filename='distilled_labels'):
+def load_distilled (filename='./Pre/distilled_labels'):
 	return np.load(filename + '.npz')['arr_0']
 
 
@@ -137,6 +137,7 @@ def main(num_epochs=50, save_num=0, Temp=20):
 	prediction = lasagne.layers.get_output(network_train)
 	loss = lasagne.objectives.categorical_crossentropy(prediction, target_distilled)
 	loss = loss.mean()
+	gradient = T.grad(loss, input_var)
 #training
 	params = lasagne.layers.get_all_params(network_train, trainable=True)
 	updates = lasagne.updates.nesterov_momentum(
@@ -153,6 +154,7 @@ def main(num_epochs=50, save_num=0, Temp=20):
 	val_fn = theano.function([input_var, target_var], [test_loss, test_acc])
 #helping test
 	simple_prediction = theano.function([input_var], test_prediction)
+	gradient_f = theano.function([input_var, target_var], gradient)
 
 	#Run the training
 	print("Training starts")
@@ -215,8 +217,18 @@ def main(num_epochs=50, save_num=0, Temp=20):
 	print ("    test loss:\t\t{:.10f}".format(test_err / test_batches))
 	print ("    test accuracy:\t{:.5f} %".format(
 		test_acc / test_batches * 100))
+	print ("Saving the network")
+	f=open('./Distill/distill_f', 'wb')
+	cPickle.dump(simple_prediction,f,cPickle.HIGHEST_PROTOCOL)
+	f.close()
+	f=open('/Distill/distill_grad_f', 'wb')
+	cPickle.dump(gradient_f,f,cPickle.HIGHEST_PROTOCOL)
+	f.close()
 
 if __name__ == '__main__':
+	if not os.path.isdir('./Distill'):
+		os.mkdir('./Distill')
+
 	num_epochs = 50
 	save_num = 0
 	Temp = 20

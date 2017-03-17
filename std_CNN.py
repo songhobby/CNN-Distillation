@@ -7,19 +7,20 @@ import numpy as np
 import theano
 import theano.tensor as T
 import lasagne
+from six.moves import cPickle
 
 #print images from numpy array
 import matplotlib
 import matplotlib.pyplot as plt
 
 def display(input_array, filename, title, prediction):
-	if not os.path.isdir('./saved_pics_old'):
-		os.mkdir('./saved_pics_old')
+	if not os.path.isdir('./Std/WrongTests'):
+		os.mkdir('./Std/WrongTests')
 	fig=plt.figure(1)
 	ax=plt.subplot(111)
 	plot=plt.imshow(input_array, cmap=matplotlib.cm.Greys)
 	plt.title('actual: ' + title + '    predicted: '+prediction)
-	fig.savefig('./saved_pics_old/' + filename)
+	fig.savefig('./Std/WrongTests/' + filename)
 
 #Loading data from MNIST
 
@@ -59,7 +60,7 @@ def load_dataset():
 	return X_train, y_train, X_val, y_val, X_test, y_test
 
 def build_cnn(input_var=None):
-	network = lasagne.layers.InputLayer(shape=(128, 1, 28, 28), input_var=input_var)
+	network = lasagne.layers.InputLayer(shape=(None, 1, 28, 28), input_var=input_var)
 
 	network = lasagne.layers.Conv2DLayer(
 			network, num_filters=32, filter_size=(3,3),
@@ -127,6 +128,7 @@ def main(num_epochs=50, save_num=0):
 	prediction = lasagne.layers.get_output(network)
 	loss = lasagne.objectives.categorical_crossentropy(prediction, target_var)
 	loss = loss.mean()
+	gradient = T.grad(loss, input_var)
 #training
 	params = lasagne.layers.get_all_params(network, trainable=True)
 	updates = lasagne.updates.nesterov_momentum(
@@ -143,6 +145,10 @@ def main(num_epochs=50, save_num=0):
 	val_fn = theano.function([input_var, target_var], [test_loss, test_acc])
 #helping test
 	simple_prediction = theano.function([input_var], test_prediction)
+#gradient
+	gradient_f = theano.function([input_var, target_var], gradient)
+
+	
 
 	#Run the training
 	print("Training starts")
@@ -204,8 +210,25 @@ def main(num_epochs=50, save_num=0):
 	print ("    test loss:\t\t{:.10f}".format(test_err / test_batches))
 	print ("    test accuracy:\t{:.5f} %".format(
 		test_acc / test_batches * 100))
+	print ("Saving the network")
+	f=open('./Std/std_f', 'wb')
+	cPickle.dump(simple_prediction,f,cPickle.HIGHEST_PROTOCOL)
+	f.close()
+	f=open('./Std/std_gra_f', 'wb')
+	cPickle.dump(gradient_f,f,cPickle.HIGHEST_PROTOCOL)
+	f.close()
+	'''
+	f=open('std_network.cnn', 'wb')
+	cPickle.dump(network, f, cPickle.HIGHEST_PROTOCOL)
+	f.close()
+	f=open('std_network.var', 'wb')
+	cPickle.dump(lasagne.layers.get_all_param_values(network), f, cPickle.HIGHEST_PROTOCOL)
+	f.close()
+	'''
 
 if __name__ == '__main__':
+	if not os.path.isdir('./Std'):
+		os.mkdir('./Std')
 	num_epochs = 50
 	save_num = 0
 	if len(sys.argv) > 1:
