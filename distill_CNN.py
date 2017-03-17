@@ -224,7 +224,7 @@ def main(num_epochs=50, save_num=0, Temp=20):
 	f=open('./Distill/distill_f', 'wb')
 	cPickle.dump(simple_prediction,f,cPickle.HIGHEST_PROTOCOL)
 	f.close()
-	f=open('/Distill/distill_grad_f', 'wb')
+	f=open('./Distill/distill_grad_f', 'wb')
 	cPickle.dump(gradient_f,f,cPickle.HIGHEST_PROTOCOL)
 	f.close()
 
