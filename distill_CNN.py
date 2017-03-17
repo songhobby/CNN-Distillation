@@ -14,12 +14,12 @@ import matplotlib.pyplot as plt
 
 def display(input_array, filename, title, prediction):
 	if not os.path.isdir('./Distill/WrongTests'):
-		os.mkdir('./WrongTests')
+		os.mkdir('./Distill/WrongTests')
 	fig=plt.figure(1)
 	ax=plt.subplot(111)
 	plot=plt.imshow(input_array, cmap=matplotlib.cm.Greys)
 	plt.title('actual: ' + title + '    predicted: '+prediction)
-	fig.savefig('./WrongTests/' + filename)
+	fig.savefig('./Distill/WrongTests/' + filename)
 
 #Loading data from MNIST
 
@@ -137,11 +137,13 @@ def main(num_epochs=50, save_num=0, Temp=20):
 	prediction = lasagne.layers.get_output(network_train)
 	loss = lasagne.objectives.categorical_crossentropy(prediction, target_distilled)
 	loss = loss.mean()
-	gradient = T.grad(loss, input_var)
+	loss_g = lasagne.objectives.categorical_crossentropy(prediction, target_var)
+	loss_g = loss_g.mean()
+	gradient = T.grad(loss_g, input_var)
 #training
 	params = lasagne.layers.get_all_params(network_train, trainable=True)
 	updates = lasagne.updates.nesterov_momentum(
-			loss, params, learning_rate=0.1, momentum=0.5)
+			loss, params, learning_rate=0.01, momentum=0.5)
 	#test_loss
 	test_prediction = lasagne.layers.get_output(network_test, deterministic=True)
 	test_loss = lasagne.objectives.categorical_crossentropy(test_prediction, target_var)
