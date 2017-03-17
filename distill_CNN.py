@@ -7,6 +7,7 @@ import numpy as np
 import theano
 import theano.tensor as T
 import lasagne
+from six.moves import cPickle
 
 #print images from numpy array
 import matplotlib
@@ -143,7 +144,7 @@ def main(num_epochs=50, save_num=0, Temp=20):
 #training
 	params = lasagne.layers.get_all_params(network_train, trainable=True)
 	updates = lasagne.updates.nesterov_momentum(
-			loss, params, learning_rate=0.01, momentum=0.5)
+			loss, params, learning_rate=0.1, momentum=0.5)
 	#test_loss
 	test_prediction = lasagne.layers.get_output(network_test, deterministic=True)
 	test_loss = lasagne.objectives.categorical_crossentropy(test_prediction, target_var)
