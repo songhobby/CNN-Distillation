@@ -65,7 +65,7 @@ def load_distilled (filename='./Pre/distilled_labels'):
 
 
 def build_cnn(input_var=None, Temp=20):
-	network = lasagne.layers.InputLayer(shape=(128, 1, 28, 28), input_var=input_var)
+	network = lasagne.layers.InputLayer(shape=(None, 1, 28, 28), input_var=input_var)
 
 	network = lasagne.layers.Conv2DLayer(
 			network, num_filters=32, filter_size=(3,3),
@@ -136,11 +136,10 @@ def main(num_epochs=50, save_num=0, Temp=20):
 	network_train, network_test = build_cnn(input_var, Temp)
 #cost function 
 	prediction = lasagne.layers.get_output(network_train)
+	penalty = lasagne.regularization.regularize_layer_params(
+			network_train, lasagne.regularization.l2)
 	loss = lasagne.objectives.categorical_crossentropy(prediction, target_distilled)
-	loss = loss.mean()
-	loss_g = lasagne.objectives.categorical_crossentropy(prediction, target_var)
-	loss_g = loss_g.mean()
-	gradient = T.grad(loss_g, input_var)
+	loss = loss.mean() + penalty*0.01
 #training
 	params = lasagne.layers.get_all_params(network_train, trainable=True)
 	updates = lasagne.updates.nesterov_momentum(
@@ -148,7 +147,11 @@ def main(num_epochs=50, save_num=0, Temp=20):
 	#test_loss
 	test_prediction = lasagne.layers.get_output(network_test, deterministic=True)
 	test_loss = lasagne.objectives.categorical_crossentropy(test_prediction, target_var)
+	penalty_test = lasagne.regularization.regularize_layer_params(
+			network_test, lasagne.regularization.l2)
 	test_loss = test_loss.mean()
+	gradient = T.grad(test_loss, input_var)
+	test_loss = test_loss + penalty_test*0.01
 #test_loss
 	test_acc = T.mean(T.eq(T.argmax(test_prediction, axis=1), target_var),
 			dtype=theano.config.floatX)
