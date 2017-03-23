@@ -6,6 +6,7 @@ import numpy as np
 import theano
 import theano.tensor as T
 import lasagne
+import gzip
 from six.moves import cPickle
 
 import matplotlib
@@ -53,7 +54,7 @@ def gen_samples(inputs, targets, batchsize):
 	assert len(inputs) == len(targets)
 	indices = np.arange(len(inputs))
 	np.random.shuffle(indices)
-	excerpt = indices[start:start + batchsize]
+	excerpt = indices[:batchsize]
 	return inputs[excerpt], targets[excerpt]
 		
 #loading data
@@ -64,33 +65,47 @@ X_sample, y_sample = gen_samples(X_test, y_test, 1000)
 f=open('./Std/std_f', 'rb')
 std_f = cPickle.load(f)
 f.close()
-f=open('/Std/std_grad_f', 'rb')
+f=open('./Std/std_grad_f', 'rb')
 std_grad_f = cPickle.load(f)
 f.close()
 
 f=open('./Distill/distill_f', 'rb')
 distill_f = cPickle.load(f)
 f.close()
-f=open('/Distill/distill_grad_f', 'rb')
+f=open('./Distill/distill_grad_f', 'rb')
 distill_grad_f = cPickle.load(f)
 f.close()
 
+'''
 data = np.arange(28)
 Data = []
 for i in range(28):
 	Data = np.append(Data, data)
 Data = np.float32(Data/27).reshape(1,1,28,28)
-print(std_f(Data))
-print(std_grad_f(Data))
+print(distill_f(Data))
+target = np.int32(np.array([8]))
+print(std_grad_f(Data, target))
 display(Data[0][0], "test_pics", 'no', '1')
 theano.printing.pydotprint(std_f, outfile="std_graph", var_with_name_simple=True)
+'''
 
-for item in range (1000):
-	saliency = np.arange(28*28)
-	predict = np.argmax(std_f(X_sample[item]))
+for item in range (1):
+	saliency_std = np.arange(28*28, dtype=np.float32).reshape(28,28)
+	saliency_dis = np.arange(28*28, dtype=np.float32).reshape(28,28)
+	predict_std = np.argmax(std_f([X_sample[item]])[0])
+	predict_dis = np.argmax(distill_f([X_sample[item]])[0])
 	for i in range(28):
 		for j in range(28):
-			saliency[i*28,j] = std_grad_f(X_sample[item], y_sample[item])
+			saliency_std[i][j] = std_grad_f([X_sample[item]], [y_sample[item]])[0][0][i][j]
+			saliency_dis[i][j] = distill_grad_f([X_sample[item]], [y_sample[item]])[0][0][i][j]
+	'''
+	print("Standard input gradient:")
+	print(saliency_std)
+	print("Distilled input gradient:")
+	print(saliency_dis)
+	'''
+
+
 
 
 
