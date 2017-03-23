@@ -12,15 +12,30 @@ from six.moves import cPickle
 import matplotlib
 import matplotlib.pyplot as plt
 
+if __name__ == '__main__':
+	sample = 5
+	limit = 100
+	if len(sys.argv) > 1:
+		sample = int(sys.argv[1])
+	if len(sys.argv) > 2:
+		limit = int(sys.argv[2])
+
+
 if not os.path.isdir('./Test'):
 	os.mkdir('./Test')
+if not os.path.isdir('./Test/Pics'):
+	os.mkdir('./Test/Pics')
+if not os.path.isdir('./Test/Pics/Std'):
+	os.mkdir('./Test/Pics/Std')
+if not os.path.isdir('./Test/Pics/Dis'):
+	os.mkdir('./Test/Pics/Dis')
+if not os.path.isdir('./Test/Pics/Org'):
+	os.mkdir('./Test/Pics/Org')
 def display(input_array, filename, title, prediction):
-	if not os.path.isdir('./Test/Pics'):
-		os.mkdir('./Test/Pics')
 	fig=plt.figure(1)
 	ax=plt.subplot(111)
 	plot=plt.imshow(input_array, cmap=matplotlib.cm.Greys)
-	plt.title('actual: ' + title + '    predicted: '+prediction)
+	plt.title('actual: ' + str(title) + '    predicted: '+str(prediction))
 	fig.savefig('./Test/Pics/' + filename)
 
 def load_dataset():
@@ -89,7 +104,12 @@ display(Data[0][0], "test_pics", 'no', '1')
 theano.printing.pydotprint(std_f, outfile="std_graph", var_with_name_simple=True)
 '''
 
-for item in range (1):
+total_std = 0
+total_dis = 0
+num = 0
+
+for item in range (sample):
+	print(item)
 	saliency_std = np.arange(28*28, dtype=np.float32).reshape(28,28)
 	saliency_dis = np.arange(28*28, dtype=np.float32).reshape(28,28)
 	predict_std = np.argmax(std_f([X_sample[item]])[0])
@@ -98,13 +118,62 @@ for item in range (1):
 		for j in range(28):
 			saliency_std[i][j] = std_grad_f([X_sample[item]], [y_sample[item]])[0][0][i][j]
 			saliency_dis[i][j] = distill_grad_f([X_sample[item]], [y_sample[item]])[0][0][i][j]
-	'''
-	print("Standard input gradient:")
-	print(saliency_std)
-	print("Distilled input gradient:")
-	print(saliency_dis)
-	'''
+	arr_std = np.copy(X_sample[item][0])
+	arr_dis = np.copy(X_sample[item][0])
+	print('Test sample {}'.format(str(item)))
+	for i in range(limit):
 
+		index_std = np.argmax(saliency_std)
+
+		x_std = index_std // 28
+		y_std = index_std % 28
+		saliency_std[x_std][y_std] = float('-inf')
+		arr_std[x_std][y_std] = 1
+
+		result_std = np.argmax(std_f([[arr_std]]))
+		if i == limit - 1:
+			print('not suitable')
+			break
+		elif result_std != y_sample[item]:
+			num += 1
+			total_std += i + 1
+			display(X_sample[item][0],'Org/actual_{}_index_{}.png'.format(str(y_sample[item]),str(item)), y_sample[item], y_sample[item])
+			display(arr_std,'Std/actual_{}_predict_{}_index_{}.png'.format(str(y_sample[item]), str(result_std), str(item)),y_sample[item], result_std)
+
+			print ('found good sample {}'.format(str(num)))
+			for j in range(limit):
+
+				index_dis = np.argmax(saliency_dis)
+				x_dis = index_dis // 28
+				y_dis = index_dis % 28
+				saliency_dis[x_dis][y_dis] = float('-inf')
+				arr_dis[x_dis][y_dis] = 1
+				result_dis = np.argmax(distill_f([[arr_dis]]))
+				if j == limit -1:
+					total_dis += limit
+					display(arr_dis,'Dis/actual_{}_predict_{}_index_{}_fail.png'.format(str(y_sample[item]), str(result_dis), str(item)),y_sample[item], result_dis)
+				elif result_dis != y_sample[item]:
+					total_dis += j + 1
+					display(arr_dis,'Dis/actual_{}_predict_{}_index_{}.png'.format(str(y_sample[item]), str(result_dis), str(item)),y_sample[item], result_dis)
+					break
+			break
+
+
+total_std=total_std/num
+total_dis=total_dis/num
+print ("For standard CNN, the total number of pixels perturbed is:")
+print (total_std)
+print ("For distilled CNN, the total number of pixels perturbed is:")
+print (total_dis)
+
+'''
+print("Standard input gradient:")
+print(saliency_std)
+print("Distilled input gradient:")
+print(saliency_dis)
+'''
+theano.printing.pydotprint(std_f, outfile="std_graph", var_with_name_simple=True)
+theano.printing.pydotprint(distill_f, outfile="dis_graph", var_with_name_simple=True)
 
 
 

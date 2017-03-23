@@ -65,7 +65,7 @@ def load_distilled (filename='./Pre/distilled_labels'):
 
 
 def build_cnn(input_var=None, Temp=20):
-	network = lasagne.layers.InputLayer(shape=(128, 1, 28, 28), input_var=input_var)
+	network = lasagne.layers.InputLayer(shape=(None, 1, 28, 28), input_var=input_var)
 
 	network = lasagne.layers.Conv2DLayer(
 			network, num_filters=32, filter_size=(3,3),
