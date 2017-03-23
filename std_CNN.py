@@ -126,9 +126,10 @@ def main(num_epochs=50, save_num=0):
 	network = build_cnn(input_var)
 #cost function 
 	prediction = lasagne.layers.get_output(network)
+	penalty = lasagne.regularization.regularize_layer_params(
+			network, lasagne.regularization.l2)
 	loss = lasagne.objectives.categorical_crossentropy(prediction, target_var)
-	loss = loss.mean()
-	gradient = T.grad(loss, input_var)
+	loss = loss.mean() + penalty*0.01
 #training
 	params = lasagne.layers.get_all_params(network, trainable=True)
 	updates = lasagne.updates.nesterov_momentum(
@@ -137,6 +138,8 @@ def main(num_epochs=50, save_num=0):
 	test_prediction = lasagne.layers.get_output(network, deterministic=True)
 	test_loss = lasagne.objectives.categorical_crossentropy(test_prediction, target_var)
 	test_loss = test_loss.mean()
+	gradient = T.grad(test_loss, input_var)
+	test_loss = test_loss + penalty*0.01
 #test_loss
 	test_acc = T.mean(T.eq(T.argmax(test_prediction, axis=1), target_var),
 			dtype=theano.config.floatX)
