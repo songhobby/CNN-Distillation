@@ -136,8 +136,8 @@ def main(num_epochs=50, save_num=0):
 			loss, params, learning_rate=0.1, momentum=0.5)
 	#test_loss
 	test_prediction = lasagne.layers.get_output(network, deterministic=True)
-	test_loss = lasagne.objectives.categorical_crossentropy(test_prediction, target_var)
-	test_loss = test_loss.mean()
+	test_loss_raw = lasagne.objectives.categorical_crossentropy(test_prediction, target_var)
+	test_loss = test_loss_raw.mean()
 	gradient = T.grad(test_loss, input_var)
 	test_loss = test_loss + penalty*0.01
 #test_loss
@@ -150,6 +150,7 @@ def main(num_epochs=50, save_num=0):
 	simple_prediction = theano.function([input_var], test_prediction)
 #gradient
 	gradient_f = theano.function([input_var, target_var], gradient)
+	loss_f = theano.function([input_var, target_var], test_loss_raw)
 
 	
 
@@ -219,6 +220,9 @@ def main(num_epochs=50, save_num=0):
 	f.close()
 	f=open('./Std/std_grad_f', 'wb')
 	cPickle.dump(gradient_f,f,cPickle.HIGHEST_PROTOCOL)
+	f.close()
+	f=open('./Std/std_loss_f', 'wb')
+	cPickle.dump(loss_f,f,cPickle.HIGHEST_PROTOCOL)
 	f.close()
 	'''
 	f=open('std_network.cnn', 'wb')

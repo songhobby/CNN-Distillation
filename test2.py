@@ -99,35 +99,30 @@ f.close()
 
 def load_distilled (filename='./Pre/distilled_labels'):
 	return np.load(filename + '.npz')['arr_0']
-'''
-data = np.arange(28)
-Data = []
-for i in range(28):
-	Data = np.append(Data, data)
-Data = np.float32(Data/27).reshape(1,1,28,28)
-print(distill_f(Data))
-target = np.int32(np.array([8]))
-print(std_grad_f(Data, target))
-display(Data[0][0], "test_pics", 'no', '1')
-theano.printing.pydotprint(std_f, outfile="std_graph", var_with_name_simple=True)
-'''
 
 total_std = 0
 total_dis = 0
 num_std = 0
 num_fail = 0
-
 for item in range (sample):
 	print('sample number',item+1)
 	saliency_std = np.arange(28*28, dtype=np.float32).reshape(28,28)
 	saliency_dis = np.arange(28*28, dtype=np.float32).reshape(28,28)
 	predict_std = np.argmax(std_f([X_sample[item]])[0])
 	predict_dis = np.argmax(distill_f([X_sample[item]])[0])
+	if predict_std != y_sample[item] or predict_dis != y_sample[item]:
+		print("bad prediction")
+		continue
+	loss_std = std_loss_f([X_sample[item]], [y_sample[item]])[0]
+	loss_dis = distill_loss_f([X_sample[item]], [y_sample[item]])[0]
+
 	print('building saliency map')
 	for i in range(28):
 		for j in range(28):
-			saliency_std[i][j] = std_grad_f([X_sample[item]], [y_sample[item]])[0][0][i][j]
-			saliency_dis[i][j] = distill_grad_f([X_sample[item]], [y_sample[item]])[0][0][i][j]
+			change = np.copy(X_sample[item])
+			change[0][i][j] = 1
+			saliency_std[i][j] = std_loss_f([change], [y_sample[item]])[0]-loss_std
+			saliency_dis[i][j] = distill_loss_f([change], [y_sample[item]])[0]-loss_dis
 	print("std:")
 	print(saliency_std)
 	print("dis:")

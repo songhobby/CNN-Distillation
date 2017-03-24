@@ -99,45 +99,46 @@ f.close()
 
 def load_distilled (filename='./Pre/distilled_labels'):
 	return np.load(filename + '.npz')['arr_0']
-'''
-data = np.arange(28)
-Data = []
-for i in range(28):
-	Data = np.append(Data, data)
-Data = np.float32(Data/27).reshape(1,1,28,28)
-print(distill_f(Data))
-target = np.int32(np.array([8]))
-print(std_grad_f(Data, target))
-display(Data[0][0], "test_pics", 'no', '1')
-theano.printing.pydotprint(std_f, outfile="std_graph", var_with_name_simple=True)
-'''
 
 total_std = 0
 total_dis = 0
 num_std = 0
-num_fail = 0
-
+num_dis = 0
+num_suc_std = 0
+num_suc_dis = 0
 for item in range (sample):
 	print('sample number',item+1)
 	saliency_std = np.arange(28*28, dtype=np.float32).reshape(28,28)
 	saliency_dis = np.arange(28*28, dtype=np.float32).reshape(28,28)
 	predict_std = np.argmax(std_f([X_sample[item]])[0])
 	predict_dis = np.argmax(distill_f([X_sample[item]])[0])
+	if predict_std != y_sample[item] or predict_dis != y_sample[item]:
+		print("bad prediction")
+		continue
+	loss_std = std_loss_f([X_sample[item]], [y_sample[item]])[0]
+	loss_dis = distill_loss_f([X_sample[item]], [y_sample[item]])[0]
+
 	print('building saliency map')
 	for i in range(28):
 		for j in range(28):
-			saliency_std[i][j] = std_grad_f([X_sample[item]], [y_sample[item]])[0][0][i][j]
-			saliency_dis[i][j] = distill_grad_f([X_sample[item]], [y_sample[item]])[0][0][i][j]
+			change = np.copy(X_sample[item])
+			change[0][i][j] = 1
+			saliency_std[i][j] = std_loss_f([change], [y_sample[item]])[0]-loss_std
+			saliency_dis[i][j] = distill_loss_f([change], [y_sample[item]])[0]-loss_dis
+	'''
 	print("std:")
 	print(saliency_std)
 	print("dis:")
 	print(saliency_dis)
+	'''
 	print("mean std:", saliency_std.mean())
 	print("mean dis:", saliency_dis.mean())
 	print("max std:", np.max(saliency_std))
 	print("max dis:", np.max(saliency_dis))
 	arr_std = np.copy(X_sample[item][0])
 	arr_dis = np.copy(X_sample[item][0])
+	num_std += 1
+	num_dis += 1
 	for i in range(limit):
 
 		index_std = np.argmax(saliency_std)
@@ -152,48 +153,46 @@ for item in range (sample):
 			print('not suitable')
 			break
 		elif result_std != y_sample[item]:
-			num_std += 1
+			num_suc_std += 1
 			total_std += i + 1
 			print("Perturbed:", i + 1)
+			break
+
 			display(X_sample[item][0],'Org/actual_{}_index_{}.png'.format(str(y_sample[item]),str(item)), y_sample[item], y_sample[item])
 			display(arr_std,'Std/actual_{}_predict_{}_index_{}.png'.format(str(y_sample[item]), str(result_std), str(item)),y_sample[item], result_std)
 
-			print ('found good sample {}'.format(str(num_std)))
-			for j in range(limit):
+	for j in range(limit):
 
-				index_dis = np.argmax(saliency_dis)
-				x_dis = index_dis // 28
-				y_dis = index_dis % 28
-				saliency_dis[x_dis][y_dis] = float('-inf')
-				arr_dis[x_dis][y_dis] = 1
-				result_dis = np.argmax(distill_f([[arr_dis]]))
-				if j == limit -1:
-					num_fail += 1
-					total_dis += j + 1
-					print("failed for distilled CNN")
-					display(arr_dis,'Dis/actual_{}_predict_{}_index_{}_fail.png'.format(str(y_sample[item]), str(result_dis), str(item)),y_sample[item], result_dis)
-				elif result_dis != y_sample[item]:
-					total_dis += j + 1
-					display(arr_dis,'Dis/actual_{}_predict_{}_index_{}.png'.format(str(y_sample[item]), str(result_dis), str(item)),y_sample[item], result_dis)
-					print("Perturbed:", j+1)
-					break
+		index_dis = np.argmax(saliency_dis)
+		x_dis = index_dis // 28
+		y_dis = index_dis % 28
+		saliency_dis[x_dis][y_dis] = float('-inf')
+		arr_dis[x_dis][y_dis] = 1
+		result_dis = np.argmax(distill_f([[arr_dis]]))
+		if j == limit -1:
+			print("failed for distilled CNN")
+			display(arr_dis,'Dis/actual_{}_predict_{}_index_{}_fail.png'.format(str(y_sample[item]), str(result_dis), str(item)),y_sample[item], result_dis)
 			break
+		elif result_dis != y_sample[item]:
+			num_suc_dis += 1
+			total_dis += j + 1
+			display(X_sample[item][0],'Org/actual_{}_index_{}.png'.format(str(y_sample[item]),str(item)), y_sample[item], y_sample[item])
+			display(arr_dis,'Dis/actual_{}_predict_{}_index_{}.png'.format(str(y_sample[item]), str(result_dis), str(item)),y_sample[item], result_dis)
+			print("Perturbed:", j+1)
+			break
+	print()
 	print()
 
 
 
-total_std=total_std/num_std
-total_dis=total_dis/(num_std - num_fail)
 print ("For standard CNN, the average number of pixels perturbed is:")
-print (total_std)
+print (total_std/num_suc_std)
 print ("For distilled CNN, the average number of pixels perturbed is:")
-print (total_dis)
-print ("For distilled CNN, fail:")
-print (num_fail)
+print (total_dis/num_suc_dis)
 print ("success rate for standard CNN")
-print (num_std/sample*100, "%")
+print (num_suc_std/num_std*100, "%")
 print ("success rate for distilled CNN")
-print ((num_std-num_fail)/sample*100, "%")
+print (num_suc_dis/num_dis*100, "%")
 
 '''
 print("Standard input gradient:")
