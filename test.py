@@ -91,6 +91,11 @@ f=open('./Distill/distill_grad_f', 'rb')
 distill_grad_f = cPickle.load(f)
 f.close()
 
+def load_distilled (filename='./Pre/distilled_labels'):
+	return np.load(filename + '.npz')['arr_0']
+dist_label = load_distilled()
+for i in range (2):
+	print(dist_label[i])
 '''
 data = np.arange(28)
 Data = []
@@ -106,7 +111,8 @@ theano.printing.pydotprint(std_f, outfile="std_graph", var_with_name_simple=True
 
 total_std = 0
 total_dis = 0
-num = 0
+num_std = 0
+num_fail = 0
 
 for item in range (sample):
 	print(item)
@@ -118,6 +124,10 @@ for item in range (sample):
 		for j in range(28):
 			saliency_std[i][j] = std_grad_f([X_sample[item]], [y_sample[item]])[0][0][i][j]
 			saliency_dis[i][j] = distill_grad_f([X_sample[item]], [y_sample[item]])[0][0][i][j]
+	print("mean std:", saliency_std.mean())
+	print("mean dis:", saliency_dis.mean())
+	print("max std:", np.argmax(saliency_std))
+	print("max dis:", np.argmax(saliency_dis))
 	arr_std = np.copy(X_sample[item][0])
 	arr_dis = np.copy(X_sample[item][0])
 	print('Test sample {}'.format(str(item)))
@@ -135,12 +145,12 @@ for item in range (sample):
 			print('not suitable')
 			break
 		elif result_std != y_sample[item]:
-			num += 1
+			num_std += 1
 			total_std += i + 1
 			display(X_sample[item][0],'Org/actual_{}_index_{}.png'.format(str(y_sample[item]),str(item)), y_sample[item], y_sample[item])
 			display(arr_std,'Std/actual_{}_predict_{}_index_{}.png'.format(str(y_sample[item]), str(result_std), str(item)),y_sample[item], result_std)
 
-			print ('found good sample {}'.format(str(num)))
+			print ('found good sample {}'.format(str(num_std)))
 			for j in range(limit):
 
 				index_dis = np.argmax(saliency_dis)
@@ -150,7 +160,8 @@ for item in range (sample):
 				arr_dis[x_dis][y_dis] = 1
 				result_dis = np.argmax(distill_f([[arr_dis]]))
 				if j == limit -1:
-					total_dis += limit
+					num_fail += 1
+					total_dis += j + 1
 					display(arr_dis,'Dis/actual_{}_predict_{}_index_{}_fail.png'.format(str(y_sample[item]), str(result_dis), str(item)),y_sample[item], result_dis)
 				elif result_dis != y_sample[item]:
 					total_dis += j + 1
@@ -159,12 +170,14 @@ for item in range (sample):
 			break
 
 
-total_std=total_std/num
-total_dis=total_dis/num
-print ("For standard CNN, the total number of pixels perturbed is:")
+total_std=total_std/num_std
+total_dis=total_dis/(num_std - num_fail)
+print ("For standard CNN, the average number of pixels perturbed is:")
 print (total_std)
-print ("For distilled CNN, the total number of pixels perturbed is:")
+print ("For distilled CNN, the average number of pixels perturbed is:")
 print (total_dis)
+print ("For distilled CNN, fail:")
+print (num_fail)
 
 '''
 print("Standard input gradient:")

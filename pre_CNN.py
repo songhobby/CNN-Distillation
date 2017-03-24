@@ -152,6 +152,7 @@ def main(num_epochs=50, save_num=0, Temp=20):
 	val_fn = theano.function([input_var, target_var], [test_loss, test_acc])
 #helping test
 	simple_prediction = theano.function([input_var], test_prediction)
+	complex_prediction= theano.function([input_var], prediction)
 
 	#Run the training
 	print("Training starts")
@@ -220,7 +221,8 @@ def main(num_epochs=50, save_num=0, Temp=20):
 	for batch in gen_batches(X_train, y_train, 500):
 		inputs, targets = batch
 		distilled_labels = np.concatenate((distilled_labels, 
-			simple_prediction(inputs)))
+			complex_prediction(inputs)))
+		print(complex_prediction(inputs))
 	np.savez_compressed('./Pre/distilled_labels', distilled_labels)
 
 if __name__ == '__main__':
