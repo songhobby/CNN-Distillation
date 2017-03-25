@@ -74,7 +74,7 @@ def gen_samples(inputs, targets, batchsize):
 		
 #loading data
 X_test, y_test = load_dataset()
-X_sample, y_sample = gen_samples(X_test, y_test, 1000)
+X_sample, y_sample = gen_samples(X_test, y_test, 10000)
 
 #loading functions
 f=open('./Std/std_f', 'rb')

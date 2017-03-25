@@ -74,7 +74,7 @@ def gen_samples(inputs, targets, batchsize):
 		
 #loading data
 X_test, y_test = load_dataset()
-X_sample, y_sample = gen_samples(X_test, y_test, 1000)
+X_sample, y_sample = gen_samples(X_test, y_test, 10000)
 
 #loading functions
 f=open('./Std/std_f', 'rb')
@@ -125,12 +125,10 @@ for item in range (sample):
 			change[0][i][j] = 1
 			saliency_std[i][j] = std_loss_f([change], [y_sample[item]])[0]-loss_std
 			saliency_dis[i][j] = distill_loss_f([change], [y_sample[item]])[0]-loss_dis
-	'''
 	print("std:")
 	print(saliency_std)
 	print("dis:")
 	print(saliency_dis)
-	'''
 	print("mean std:", saliency_std.mean())
 	print("mean dis:", saliency_dis.mean())
 	print("max std:", np.max(saliency_std))

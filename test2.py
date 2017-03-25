@@ -74,7 +74,7 @@ def gen_samples(inputs, targets, batchsize):
 		
 #loading data
 X_test, y_test = load_dataset()
-X_sample, y_sample = gen_samples(X_test, y_test, 1000)
+X_sample, y_sample = gen_samples(X_test, y_test, 10000)
 
 #loading functions
 f=open('./Std/std_f', 'rb')
@@ -190,11 +190,10 @@ print (num_std/sample*100, "%")
 print ("success rate for distilled CNN")
 print ((num_std-num_fail)/sample*100, "%")
 
-'''
 print("Standard input gradient:")
 print(saliency_std)
 print("Distilled input gradient:")
 print(saliency_dis)
-'''
+
 theano.printing.pydotprint(std_f, outfile="std_graph", var_with_name_simple=True)
 theano.printing.pydotprint(distill_f, outfile="dis_graph", var_with_name_simple=True)
