@@ -21,22 +21,22 @@ if __name__ == '__main__':
 		limit = int(sys.argv[2])
 
 
-if not os.path.isdir('./Test'):
-	os.mkdir('./Test')
-if not os.path.isdir('./Test/Pics'):
-	os.mkdir('./Test/Pics')
-if not os.path.isdir('./Test/Pics/Std'):
-	os.mkdir('./Test/Pics/Std')
-if not os.path.isdir('./Test/Pics/Dis'):
-	os.mkdir('./Test/Pics/Dis')
-if not os.path.isdir('./Test/Pics/Org'):
-	os.mkdir('./Test/Pics/Org')
+if not os.path.isdir('./Test3'):
+	os.mkdir('./Test3')
+if not os.path.isdir('./Test3/Pics'):
+	os.mkdir('./Test3/Pics')
+if not os.path.isdir('./Test3/Pics/Std'):
+	os.mkdir('./Test3/Pics/Std')
+if not os.path.isdir('./Test3/Pics/Dis'):
+	os.mkdir('./Test3/Pics/Dis')
+if not os.path.isdir('./Test3/Pics/Org'):
+	os.mkdir('./Test3/Pics/Org')
 def display(input_array, filename, title, prediction):
 	fig=plt.figure(1)
 	ax=plt.subplot(111)
 	plot=plt.imshow(input_array, cmap=matplotlib.cm.Greys)
 	plt.title('actual: ' + str(title) + '    predicted: '+str(prediction))
-	fig.savefig('./Test/Pics/' + filename)
+	fig.savefig('./Test3/Pics/' + filename)
 
 def load_dataset():
 	def download(filename, source='http://yann.lecun.com/exdb/mnist/'):
