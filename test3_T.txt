@@ -1,0 +1,257 @@
+Loading the dataset
+building the model
+Training starts
+Epoch 1 of 50 took 35.58569s
+    training loss:	2.3913565760
+    validation loss:	2.3268620287
+    validation accuracy:	10.26786 %
+Epoch 2 of 50 took 35.58730s
+    training loss:	2.3165216285
+    validation loss:	2.3029532433
+    validation accuracy:	10.26786 %
+Epoch 3 of 50 took 35.59197s
+    training loss:	2.3046867428
+    validation loss:	2.3002343178
+    validation accuracy:	10.26786 %
+Epoch 4 of 50 took 35.58997s
+    training loss:	2.3027897752
+    validation loss:	2.3002137797
+    validation accuracy:	10.26786 %
+Epoch 5 of 50 took 35.61735s
+    training loss:	2.3024607596
+    validation loss:	2.3003787654
+    validation accuracy:	10.26786 %
+Epoch 6 of 50 took 35.58721s
+    training loss:	2.3023773660
+    validation loss:	2.3004763467
+    validation accuracy:	10.26786 %
+Epoch 7 of 50 took 35.56778s
+    training loss:	2.3023304494
+    validation loss:	2.3004650388
+    validation accuracy:	10.26786 %
+Epoch 8 of 50 took 35.56356s
+    training loss:	2.3022781424
+    validation loss:	2.3001439231
+    validation accuracy:	10.26786 %
+Epoch 9 of 50 took 37.07942s
+    training loss:	2.3022167221
+    validation loss:	2.2991800649
+    validation accuracy:	10.26786 %
+Epoch 10 of 50 took 35.67735s
+    training loss:	2.3021137357
+    validation loss:	2.2960809299
+    validation accuracy:	10.26786 %
+Epoch 11 of 50 took 35.68616s
+    training loss:	2.3018473516
+    validation loss:	2.2816091265
+    validation accuracy:	10.26786 %
+Epoch 12 of 50 took 35.69262s
+    training loss:	2.2953589864
+    validation loss:	4.2206000601
+    validation accuracy:	19.97768 %
+Epoch 13 of 50 took 35.68426s
+    training loss:	1.0604456122
+    validation loss:	2.3224099321
+    validation accuracy:	95.20089 %
+Epoch 14 of 50 took 35.68665s
+    training loss:	0.3953907092
+    validation loss:	1.5869058695
+    validation accuracy:	96.98661 %
+Epoch 15 of 50 took 35.67092s
+    training loss:	0.2897750850
+    validation loss:	1.6352352872
+    validation accuracy:	96.98661 %
+Epoch 16 of 50 took 35.69228s
+    training loss:	0.2409503119
+    validation loss:	1.3934057312
+    validation accuracy:	97.65625 %
+Epoch 17 of 50 took 35.69148s
+    training loss:	0.2133274718
+    validation loss:	1.1586415036
+    validation accuracy:	98.10268 %
+Epoch 18 of 50 took 35.67840s
+    training loss:	0.1878487097
+    validation loss:	1.1519950713
+    validation accuracy:	97.99107 %
+Epoch 19 of 50 took 35.68756s
+    training loss:	0.1764661213
+    validation loss:	1.1086991940
+    validation accuracy:	97.99107 %
+Epoch 20 of 50 took 35.67788s
+    training loss:	0.1651291517
+    validation loss:	0.8863604729
+    validation accuracy:	98.43750 %
+Epoch 21 of 50 took 35.67789s
+    training loss:	0.1532494316
+    validation loss:	0.8850120689
+    validation accuracy:	98.54911 %
+Epoch 22 of 50 took 35.68179s
+    training loss:	0.1458294592
+    validation loss:	0.8943937022
+    validation accuracy:	98.66071 %
+Epoch 23 of 50 took 35.68524s
+    training loss:	0.1348317502
+    validation loss:	0.8524043414
+    validation accuracy:	98.77232 %
+Epoch 24 of 50 took 35.69097s
+    training loss:	0.1325912885
+    validation loss:	1.0475598968
+    validation accuracy:	98.66071 %
+Epoch 25 of 50 took 35.67899s
+    training loss:	0.1295178260
+    validation loss:	0.8663026020
+    validation accuracy:	98.54911 %
+Epoch 26 of 50 took 35.66652s
+    training loss:	0.1231085659
+    validation loss:	0.7773938730
+    validation accuracy:	98.88393 %
+Epoch 27 of 50 took 35.67298s
+    training loss:	0.1196254716
+    validation loss:	0.8232406963
+    validation accuracy:	98.99554 %
+Epoch 28 of 50 took 35.67329s
+    training loss:	0.1175148291
+    validation loss:	0.7593345605
+    validation accuracy:	99.10714 %
+Epoch 29 of 50 took 35.67678s
+    training loss:	0.1083337030
+    validation loss:	0.7500573623
+    validation accuracy:	98.88393 %
+Epoch 30 of 50 took 35.67113s
+    training loss:	0.1073491695
+    validation loss:	0.8191198169
+    validation accuracy:	98.99554 %
+Epoch 31 of 50 took 35.66911s
+    training loss:	0.1053441358
+    validation loss:	0.6616116544
+    validation accuracy:	98.99554 %
+Epoch 32 of 50 took 35.66021s
+    training loss:	0.1017941796
+    validation loss:	0.6953349651
+    validation accuracy:	99.10714 %
+Epoch 33 of 50 took 35.66513s
+    training loss:	0.0974970718
+    validation loss:	0.6437986355
+    validation accuracy:	99.10714 %
+Epoch 34 of 50 took 35.67739s
+    training loss:	0.0951781208
+    validation loss:	0.7673170073
+    validation accuracy:	98.88393 %
+Epoch 35 of 50 took 35.68443s
+    training loss:	0.0944316465
+    validation loss:	0.6650769926
+    validation accuracy:	99.10714 %
+Epoch 36 of 50 took 35.70193s
+    training loss:	0.0955108291
+    validation loss:	0.7287162372
+    validation accuracy:	98.99554 %
+Epoch 37 of 50 took 35.70265s
+    training loss:	0.0916238207
+    validation loss:	0.5948795070
+    validation accuracy:	98.77232 %
+Epoch 38 of 50 took 35.70299s
+    training loss:	0.0889553290
+    validation loss:	0.7083323837
+    validation accuracy:	99.10714 %
+Epoch 39 of 50 took 35.70617s
+    training loss:	0.0897680247
+    validation loss:	0.7098346820
+    validation accuracy:	99.21875 %
+Epoch 40 of 50 took 35.70808s
+    training loss:	0.0863140011
+    validation loss:	0.5914006361
+    validation accuracy:	99.10714 %
+Epoch 41 of 50 took 35.71547s
+    training loss:	0.0853210256
+    validation loss:	0.6994867155
+    validation accuracy:	99.10714 %
+Epoch 42 of 50 took 35.67944s
+    training loss:	0.0832081767
+    validation loss:	0.6332445409
+    validation accuracy:	99.21875 %
+Epoch 43 of 50 took 35.66607s
+    training loss:	0.0815890490
+    validation loss:	0.5321478570
+    validation accuracy:	99.10714 %
+Epoch 44 of 50 took 35.67093s
+    training loss:	0.0824855623
+    validation loss:	0.7546941626
+    validation accuracy:	99.21875 %
+Epoch 45 of 50 took 35.66056s
+    training loss:	0.0795657972
+    validation loss:	0.6707803288
+    validation accuracy:	99.21875 %
+Epoch 46 of 50 took 35.67016s
+    training loss:	0.0794485241
+    validation loss:	0.5546565959
+    validation accuracy:	99.21875 %
+Epoch 47 of 50 took 35.65881s
+    training loss:	0.0797628546
+    validation loss:	0.6172401905
+    validation accuracy:	99.21875 %
+Epoch 48 of 50 took 35.66655s
+    training loss:	0.0744612632
+    validation loss:	0.5439776209
+    validation accuracy:	99.21875 %
+Epoch 49 of 50 took 25.48042s
+    training loss:	0.0760462198
+    validation loss:	0.6029134797
+    validation accuracy:	99.21875 %
+Epoch 50 of 50 took 19.79274s
+    training loss:	0.0744297918
+    validation loss:	0.5935608558
+    validation accuracy:	99.21875 %
+Saving the wrong pictures of batch 0
+Saving the wrong pictures of batch 1
+Saving the wrong pictures of batch 2
+Saving the wrong pictures of batch 3
+Saving the wrong pictures of batch 4
+Saving the wrong pictures of batch 5
+Saving the wrong pictures of batch 6
+Saving the wrong pictures of batch 7
+Saving the wrong pictures of batch 8
+Saving the wrong pictures of batch 9
+Saving the wrong pictures of batch 10
+Saving the wrong pictures of batch 11
+Saving the wrong pictures of batch 12
+Saving the wrong pictures of batch 13
+Saving the wrong pictures of batch 14
+Saving the wrong pictures of batch 15
+Saving the wrong pictures of batch 16
+Saving the wrong pictures of batch 17
+Saving the wrong pictures of batch 18
+Saving the wrong pictures of batch 19
+Saving the wrong pictures of batch 20
+Saving the wrong pictures of batch 21
+Saving the wrong pictures of batch 22
+Saving the wrong pictures of batch 23
+Saving the wrong pictures of batch 24
+Saving the wrong pictures of batch 25
+Saving the wrong pictures of batch 26
+Saving the wrong pictures of batch 27
+Saving the wrong pictures of batch 28
+Saving the wrong pictures of batch 29
+Saving the wrong pictures of batch 30
+Saving the wrong pictures of batch 31
+Saving the wrong pictures of batch 32
+Saving the wrong pictures of batch 33
+Saving the wrong pictures of batch 34
+Saving the wrong pictures of batch 35
+Saving the wrong pictures of batch 36
+Saving the wrong pictures of batch 37
+Saving the wrong pictures of batch 38
+Saving the wrong pictures of batch 39
+Saving the wrong pictures of batch 40
+Saving the wrong pictures of batch 41
+Saving the wrong pictures of batch 42
+Saving the wrong pictures of batch 43
+Saving the wrong pictures of batch 44
+Saving the wrong pictures of batch 45
+Saving the wrong pictures of batch 46
+Saving the wrong pictures of batch 47
+Saving the wrong pictures of batch 48
+Saving the wrong pictures of batch 49
+Tesing results:
+    test loss:		0.3387894943
+    test accuracy:	99.33894 %
+Saving the network
